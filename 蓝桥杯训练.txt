@@ -1,0 +1,613 @@
+
+大数加减法
+
+#include<iostream>
+#include<sstream>
+#include<string>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+
+int n=100;
+
+string add(string a,string b)
+{
+	a=a.substr(a.find_first_not_of('0'));
+	b=b.substr(b.find_first_not_of('0'));
+	long long lenA=a.length();
+	long long lenB=b.length();
+	long long len=max(lenA,lenB)+10;
+	reverse(a.begin(),a.end());
+	reverse(b.begin(),b.end());
+	string ans(len,'0');
+	
+	for(int i=0;i<lenA;i++)
+	    ans[i]=a[i];
+	int tmp=0;
+	for(int i=0;i<len;i++)
+	{
+		if(i<b.length())
+			tmp+=(ans[i]-'0')+(b[i]-'0');
+		else
+			tmp+=(ans[i]-'0');		
+		ans[i] = tmp%10+'0';
+		tmp/=10;
+	}
+		reverse(ans.begin(),ans.end());	 
+	return ans.substr(ans.find_first_not_of('0'));
+}
+
+int cmp(string a, string b)
+{
+	if(a.length()>b.length())
+	 return 1;
+	else if(a.length()<b.length())
+	return -1;
+    else{
+    	   if(a>b)
+    	   return 1;
+    	   else if(a<b)
+    	   return -1;
+    	   else
+    	    return 0;
+	}
+}
+
+//此时是a>=b 
+string subtract(string a, string b)   
+{
+	//完整的减法里面  a可以小于b  交换ab进行下面的代码
+	//1翻转
+	reverse(a.begin(),a.end());
+	reverse(b.begin(),b.end());
+ 
+	for(int i=0;i<b.length();i++)
+	{
+		if(a[i]>=b[i])
+	     a[i]=a[i]-b[i]+'0';
+	    else   //就要借 
+	    {
+	    	int k=1;
+	    	while(a[i+k]=='0')
+	    	{
+	    		a[i+k]='9';
+	    		k++;
+			}
+		    a[i+k]=a[i+k]-'1'+'0';
+		    a[i]=(a[i]-'0'+10)-(b[i]-'0')+'0';
+		}
+	}
+	reverse(a.begin(),a.end());
+	if(a.find_first_not_of('0')==string::npos) return "0";
+	return a.substr(a.find_first_not_of('0'));
+	 
+}
+
+string divide(string a, string b)
+{
+	//只考虑a<b的情况 
+	string ans="0.";
+	//转化为减法
+	for(int i=0;i<101;i++)
+	{
+	   a.append("0");
+	   int t=0;
+	   while(cmp(a,b)>=0)  //a>=b的情况
+	   {
+	   	  a=subtract(a,b);
+	   	  t++;
+	   }
+	   string t_str;
+	   stringstream  ss;
+	   ss<<t;
+	   ss>>t_str;
+	   ans.append(t_str);	
+	} 
+	return ans;
+}
+
+int main(){
+   string a="1";
+   string b="1"; 
+  for(int i=3;i<=n;i++)
+   {
+   	  string tmp=b;
+   	  b=add(a,b);
+   	  a=tmp;
+   }
+   string ans = divide(a,b);
+   cout<<ans;		
+	return 0;
+
+
+广度搜索问题(硬币问题）
+#include<iostream>
+#include<queue>
+#include<set>
+#include<algorithm>
+using namespace std;
+
+typedef struct stateAndlevel{
+	string str;
+	int level;	
+} stateAndlevel;
+
+queue<stateAndlevel> queue1; 
+set<string > set1; 
+int n;
+int main()
+{   
+    string src;
+    string target;
+    cin>>src;
+    cin>>target;
+    n= src.length();
+    stateAndlevel first = {src,0};
+    queue1.push(first); 
+    while(!queue1.empty())
+    {
+    	stateAndlevel fron = queue1.front();
+    	queue1.pop();
+    	string basicString=fron.str ;
+    	if(basicString.compare(target)==0)
+    	{
+    		cout<<fron.level<<endl;
+    		return 0;
+		}
+		set1.insert(basicString);
+		for(int i=0;i<n-1;i++)
+		{
+			string buff;
+    	buff.insert(0,basicString);
+			if(buff[i]=='*')
+			  buff[i]='o';
+			else
+			  buff[i]='*';
+			if(buff[i+1]=='o')
+			  buff[i+1]='*';
+			 else
+			 	buff[i+1]='o';
+		   if(set1.find(buff)==set1.end())
+		   {
+		   	    stateAndlevel obj = {buff,fron.level+1};
+		   	    queue1.push(obj);
+			}	
+		}
+	}
+	return 0;
+}
+
+
+ 
+
+
+N皇后问题(递归)
+#include<iostream>
+#include<cmath>
+#include<algorithm>
+using namespace std;
+
+int x[100];
+int y[100];
+int n;
+int sum=0;
+int flag[100]={-1};
+
+bool place(int k)
+{
+	 for(int i=1;i<k;i++)
+	 {
+	 	 if(x[i]==x[k]||abs(k-i)==abs(x[k]-x[i]))
+	 	 return false;
+	  } 
+  	if(x[k]==flag[k])
+	  return false;
+	return true;
+}
+
+ void Output(){
+	for(int i=1;i<=n;i++)
+	{
+	    for(int j=1;j<=n;j++)
+	    {
+	    	if(x[i]==j)
+	    	{
+	    		cout<<"O"; 
+	    		if(j==n)
+	    		 cout<<endl;
+	    		else
+	    		 cout<<"  ";
+			}
+			else{
+				cout<<"X"; 
+	    		if(j==n)
+	    		 cout<<endl;
+	    		else
+	    		 cout<<"  ";
+			}
+		}
+	} 
+	cout<<endl;	
+}
+ 
+
+void f(int t,int n)
+{
+	if(t>n)
+	{
+	  sum++;
+   Output();
+	}	 
+	else 
+    {
+        for(int j=1;j<=n;j++)
+        {
+        	 x[t]=j;       	 
+        	 if(place(t))
+        	   f(t+1,n);
+		}
+	}
+}
+
+int main()
+{    
+    cin>>n;
+    int k=1;
+    for(int i=1;i<=n;i++)
+       for(int j=1;j<=n;j++)
+       {
+       	     int a;
+       	     cin>>a;
+       	     if(a==0)
+       	     flag[i]=j;
+	   }
+    f(k,n);
+   cout<<sum;  
+	return 0; 
+}
+
+
+2N皇后问题
+
+#include<iostream>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+
+//vis1和vis2检查黑白皇后是否在同一列 1表示同列
+//x1和x2判断黑白皇后是否在左至右的对角线 1表示在对角线上
+//y1和y2判断黑白皇后是否在从右至左的对角线 1表示在对角线上
+int n,ans=0;
+int a[9][9],vis1[9],vis2[9];
+int x1[19],y1[19],x2[19],y2[19];
+  
+void DFS(int depth)
+{
+   if(depth>n)
+   {
+      ans++;
+	  return ;	
+   }	
+    for(int i=1;i<=n;i++)   //摆放黑皇后 
+       {
+    	 if(a[depth][i]&&!vis1[i]&&!x1[depth+i]&&!y1[depth-i+n])
+    	   {
+    	   	   a[depth][i]=0;
+			   vis1[i]=1;
+			   x1[depth+i]=1;
+			   y1[depth-i+n]=1;
+		      for(int j=1;j<=n;j++)
+		      {
+		      	if(a[depth][j]&&!vis2[j]&&!x2[depth+j]&&!y2[depth-j+n])
+		      	{
+		      	  a[depth][j]=0;vis2[j]=1;x2[depth+j]=1;y2[depth-j+n]=1;
+					DFS(depth+1);
+				  a[depth][j]=1;vis2[j]=0;x2[depth+j]=0;y2[depth-j+n]=0;		
+				}		
+			  }	  
+		       a[depth][i]=1;
+			   vis1[i]=0;
+			   x1[depth+i]=0;
+			   y1[depth-i+n]=0;
+		   }			 
+	   }
+ 
+}
+ 
+ int main()
+ {
+    cin>>n;
+    for(int i=1;i<=n;i++)
+       for(int j=1;j<=n;j++)
+          cin>>a[i][j];
+    DFS(1);
+    cout<<ans<<endl;
+	return 0; 
+}
+
+
+#二维迷宫问题 输出最短路径 （输出路径）
+
+#include<iostream> 
+#include<queue>
+#include<cstring>
+using namespace std;
+ int a[6][6];
+ int vis[6][6];   //表示当前位置已经被访问 
+ int dist[6][6];   
+ int f[4][2]={{0,1},{0,-1},{1,0},{-1,0}};
+ 
+ typedef struct node{
+ 	int x;
+ 	int y;
+ }Node;
+ 
+ 
+queue<Node> st;
+ 
+int BFS()
+ {  
+ memset(dist,-1,sizeof(dist));
+ 	Node t={1,1};
+	Node d;
+	dist[t.x][t.y]=0;	//入口 
+	st.push(t);
+	 
+ 	while(!st.empty())
+ 	{
+ 		t=st.front();
+ 		st.pop();
+ 		if(t.x==5&&t.y==5)
+ 		 return dist[t.x][t.y];
+ 		for(int i=0;i<4;i++)
+ 		{
+ 			d.x=t.x+f[i][0];
+ 		    d.y=t.y+f[i][1];
+ 			if(d.x<1||d.x>5||d.y<1||d.y>5)
+ 			   continue;
+ 		    if(a[d.x][d.y]==0&&!vis[d.x][d.y])  
+ 		    {	
+			 vis[d.x][d.y]=1;	 
+ 			 dist[d.x][d.y]=dist[t.x][t.y]+1;        (pre[d.x][d.y].x=t.x      pre[d.x][d.y].y=t.y) //pre存放x、y位置的前一个访问节点然后逆序输出
+			 st.push(d);		     
+ 		    }
+  
+		}
+	}
+ }
+ 
+ int main()
+ {
+   for(int i=1;i<6;i++)
+     for(int j=1;j<6;j++)
+        cin>>a[i][j];
+     cout<<BFS();
+ 
+ }
+
+
+
+
+#三维迷宫问题 求最短路径
+
+ #include<iostream> 
+ #include<queue>
+ #include<cstring>
+ using namespace std;
+
+typedef struct node{
+	int x;
+	int y;
+	int z;	
+}Node;
+
+ int l,r,c;
+ const int N=101;
+ 
+ int de[6][3]={{1,0,0},{-1,0,0},{0,1,0},{0,-1,0},{0,0,1},{0,0,-1}};
+ char g[N][N][N];
+ int dist[N][N][N];
+ 
+ int BFS(Node be,Node en)
+ { 
+ 	memset(dist,-1,sizeof(dist));
+ 	dist[be.x][be.y][be.z]=0;
+ 	queue<Node> st;
+ 	st.push(be);
+ 	while(!st.empty())
+ 	{
+ 		 Node t=st.front();
+ 		 st.pop();
+ 		 for(int i=0;i<6;i++)
+ 		 {
+ 		 	  Node d;
+ 		 	  d.x=de[i][0]+t.x;
+ 		 	  d.y=de[i][1]+t.y;
+ 		 	  d.z=de[i][2]+t.z;
+ 		 	if(d.x<0||d.x>=l||d.y<0||d.y>=r||d.z<0||d.z>=c) 
+ 		 	  continue;
+ 		 	else if(g[d.x][d.y][d.z]=='#')
+ 		 	  continue;
+ 		 	else if(dist[d.x][d.y][d.z]!=-1)   //已经走过的地方 
+ 		 	  continue; 
+ 		 	dist[d.x][d.y][d.z]=dist[t.x][t.y][t.z]+1;
+ 		 	if(g[d.x][d.y][d.z]=='E')
+ 		 	return dist[d.x][d.y][d.z];
+ 		 	st.push(d); 
+		 }
+	}
+ 	
+ 	return -1;
+ }
+ 
+ 
+ int main()
+ { 
+     while(cin>>l>>r>>c,l||r||c)
+     {
+        node st,ed;
+        for(int i=0;i<l;i++)
+            for(int j=0;j<r;j++)
+                for(int k=0;k<c;k++)
+                {
+                    cin>>g[i][j][k];           //输入地图
+                    if(g[i][j][k]=='E')
+	 {
+	         ed.x=i;
+		 ed.y=j;
+		 ed.z=k;
+	}
+                    else if(g[i][j][k]=='S')   //找到开始与结束地点
+					  {
+					  	   st.x=i;
+					   	   st.y=j;
+					   	   st.z=k;
+			          }
+                }
+            if(BFS(st,ed)==-1)cout<<"Trapped!"<<endl;
+            else cout<<"Escaped in "<<BFS(st,ed)<<" minute(s)."<<endl;//输出答案
+	 }
+ }
+
+
+
+大根堆排序
+#include<iostream>
+using namespace std;
+ 
+typedef struct {
+	int key;
+}RecType; 
+ 
+ 
+void sift(RecType r[],int k, int m)
+{
+    RecType t=r[k];      //保留根的记录
+    int x=t.key,i=k,j=2*i;
+	bool finish=false;
+	while(j<=m&&!finish)
+	{
+	    if(j<m&&r[j].key<r[j+1].key)   //若存在右子树且右子树的值大 
+		   j++;	 
+		if(x>=r[j].key)    //大根堆 
+		  finish=true;     //筛选结束 
+		else               
+		{
+			r[i]=r[j];
+			i=j;
+			j=2*i;
+		} 
+	   r[i]=t;
+	   
+	} 
+   	
+} 
+
+//大根堆对应的升序 
+void Heapsort(RecType r[],int n)
+{
+	RecType temp;
+	for(int i=n/2;i>=1;i--)       //建立初始堆
+	   sift(r,i,n);
+	
+	for(int i=n;i>=2;i--)
+	{
+		temp=r[1];                       //将最后一个元素和根元素交换 
+		r[1]=r[i];
+		r[i]=temp;
+		sift(r,1,i-1);
+	} 	 
+}
+
+int main()
+{
+	 int n;
+	 cin>>n;
+	 RecType a[n+1];
+	 
+     for(int i=1;i<=n;i++)
+         {
+             int n;
+             cin>>n;
+             a[i].key=n;
+		 } 
+    for(int i=1;i<=n;i++)
+       cout<<a[i].key<<" ";
+       cout<<endl;
+    Heapsort(a,n);
+    for(int i=1;i<=n;i++)
+       cout<<a[i].key<<" ";	 
+	return 0;
+} 
+ 
+
+
+
+总结:   分割以空格隔开的字符串可以使用istringstream（头文件sstream)    iomanip为精度控制库      setprecision可以控制有效位数， setiosflags(ios::fixed)<<setprecision(n) 控制小数位数
+
+transform(str.begin(),str.end(),str.begin(),::tolower); // or 'toupper'     第三个参数是新字符串的起始地址(字符串大小写转换)    ialpha() 判断是否为字符  isalnum()判断是否为字母或数字 
+
+
+1.排序以后使用unique()函数：unique函数比较的时相邻的两个元素，重复的放到vector尾部
+
+sort(vector.begin(),vector.end());
+vector.erase(unique(vector.begin(),vector.end()), vector.end());
+//unique()函数将重复的元素放到vector的尾部 然后返回指向第一个重复元素的迭代器 再用erase函数擦除从这个元素到最后元素的所有的元素
+
+
+并查集
+
+初始花模板：for(int i=1;i<=n;i++) pre[i]=i;
+查询的模板(含路径压缩)： int Find(int x){
+                                           if(x==pre[x]) return x;
+                                           return pre[x]=Find(pre[x]);
+                                          }
+合并的模板：void merge(int x,int y){
+                      int fx=Find(x),fy=Find(y);
+                      if(fx!=fy) pre[fx]=fy;
+                            }
+                    //主函数内
+                    merge(a,b);
+
+
+二叉树的建立：
+
+
+typedef struct BitNode{
+	char data;
+	struct BitNode *lchild,*rchild;
+}BitNode,*BiTree;
+
+BiTree creat()                （递归的前序建立）
+{
+   BiTree  r=NULL;
+	char a;
+    cin>>a;
+    if(a!='#')
+    {
+    	r=new BitNode;
+    	r->data=a;
+    	r->lchild=creat();
+    	r->rchild=creat();
+	}
+	return r;
+}
+
+} 
+
+图论：
+
+（1）f'loyd算法：求多源路径的最小值
+
+void floyd()
+{
+    for(int k=1;k<=n;k++)          //求中间点
+   {
+      for(int i=1;i<=n;i++) 
+           if(graph[i][k] != INF)       //一个小优化 
+            for(int j=1; j<=n; j++)  
+                if(graph[i][j] > graph[i][k] + graph[k][j])
+                   graph[i][j] = graph[i][k] + graph[k][j];
+   }
+}
+
